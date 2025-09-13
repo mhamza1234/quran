@@ -1,180 +1,169 @@
-// ---------- Config ----------
-const MANIFEST_URL = './manifest.json';     // root
-const WORD_STRIP_SELECTOR = '#wordRow';
+// প্রদত্ত JSON পেলোড
+const quranPayload = {
+    "surah": 67,
+    "name_ar": "الملك",
+    "name_bn": "সার্বভৌমত্ব",
+    "verses": [
+        {
+            "ayah_id": "67:1",
+            "arabic": "تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
+            "bangla": "মহিমান্বিত তিনি যার হাতে সার্বভৌমত্ব এবং তিনি সব কিছুর উপর ক্ষমতাবান।",
+            "words": [
+                {
+                    "ar": "تَبَارَكَ",
+                    "bn": "বরকতময়",
+                    "tr": "tabāraka",
+                    "root": "ب-ر-ك",
+                    "pattern": "تَفَاعَلَ",
+                    "derived": [
+                        { "ar": "بَرَكَة", "bn": "বরকত", "pattern": "فَعَلَة" },
+                        { "ar": "مُبَارَك", "bn": "বরকতময়", "pattern": "مُفَاعَل" },
+                        { "ar": "بَارَكَ", "bn": "বরকত দেওয়া", "pattern": "فَاعَلَ" }
+                    ]
+                },
+                {
+                    "ar": "الَّذِي",
+                    "bn": "যিনি",
+                    "tr": "alladhī",
+                    "root": "ا-ل-ل",
+                    "pattern": "الَّذِي",
+                    "derived": [
+                        { "ar": "الَّتِي", "bn": "যে (স্ত্রীলিঙ্গ)", "pattern": "الَّتِي" },
+                        { "ar": "الَّذِينَ", "bn": "যারা (পুরুষ বহুবচন)", "pattern": "الَّذِينَ" }
+                    ]
+                }
+            ]
+        },
+        {
+            "ayah_id": "67:2",
+            "arabic": "الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا",
+            "bangla": "যিনি সৃষ্টি করেছেন মৃত্যু ও জীবন তোমাদের পরীক্ষা করার জন্য যে কে তোমাদের মধ্যে সর্বোত্তম কর্ম করে।",
+            "words": [
+                {
+                    "ar": "الَّذِي",
+                    "bn": "যিনি",
+                    "tr": "alladhī",
+                    "root": "ا-ل-ل",
+                    "pattern": "الَّذِي",
+                    "derived": [
+                        { "ar": "الَّتِي", "bn": "যে (স্ত্রীলিঙ্গ)", "pattern": "الَّتِي" },
+                        { "ar": "الَّذِينَ", "bn": "যারা (পুরুষ বহুবচন)", "pattern": "الَّذِينَ" }
+                    ]
+                }
+            ]
+        }
+    ]
+};
 
-// ---------- State ----------
-let manifest = [];
-let currentDeck = null;          // selected surah manifest entry
-let surahData = null;            // object { surah, name_ar, name_bn, verses: [...] }
-let currentAyahIndex = 0;
-
-// ---------- Boot ----------
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadManifest();
-  await initSurahSelect();
-  bindUI();
-  await loadSelectedSurah();
+document.addEventListener('DOMContentLoaded', () => {
+    const surahContainer = document.getElementById('surah-container');
+    renderSurah(quranPayload, surahContainer);
 });
 
-// ---------- Loaders ----------
-async function loadManifest(){
-  try{
-    const res = await fetch(MANIFEST_URL, { cache:'no-store' });
-    if(!res.ok) throw new Error('Manifest fetch failed');
-    manifest = await res.json();
-  }catch(err){
-    console.error(err);
-    alert('Could not load manifest. Check file path & hosting.');
-  }
-}
-
-async function initSurahSelect(){
-  const sel = document.getElementById('surahSelect');
-  sel.innerHTML = '';
-
-  manifest.forEach((m,i)=>{
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = m.name;
-    sel.appendChild(opt);
-  });
-
-  sel.addEventListener('change', async (e)=>{
-    currentDeck = manifest[parseInt(e.target.value,10)];
-    currentAyahIndex = 0;
-    await loadSelectedSurah();
-  });
-
-  // default to first deck
-  if(manifest.length){
-    sel.value = 0;
-    currentDeck = manifest[0];
-  }
-}
-
-async function loadSelectedSurah(){
-  if(!currentDeck) return;
-  const path = currentDeck.json;
-  try{
-    const res = await fetch(path, { cache:'no-store' });
-    if(!res.ok) throw new Error(`Could not load surah data from ${path}`);
-    surahData = await res.json();
-    renderSurahInfo(surahData);
-    renderAyah(surahData.verses[currentAyahIndex]);
-  }catch(err){
-    console.error(err);
-    alert(`Could not load surah data: ${path}`);
-  }
-}
-
-// ---------- Renderers ----------
-function renderSurahInfo(data){
-  document.getElementById('surahTitleAr').textContent = data.name_ar;
-  document.getElementById('surahTitleBn').textContent = data.name_bn;
-}
-
-function renderAyah(data){
-  const ayahNum = data.ayah_id.split(':')[1];
-  document.getElementById('ayahChip').textContent = `Ayah ${ayahNum}`;
-  document.getElementById('ayahArabic').textContent = data.arabic;
-  document.getElementById('ayahBangla').textContent = data.bangla;
-
-  // Render the word tiles
-  const wordStrip = document.querySelector(WORD_STRIP_SELECTOR);
-  wordStrip.innerHTML = ''; // Clear previous words
-  wordStrip.classList.toggle('ar-dir', document.getElementById('ayahArabic').dir === 'rtl');
-  data.words.forEach(w => {
-    wordStrip.innerHTML += createWordTile(w);
-  });
-  
-  // Position the strip based on direction
-  positionWordStripForDirection();
-}
-
-function createWordTile(w){
-  // Handle derived words
-  const derivedTiles = (w.derived || []).map(d =>
-    ` <div class=\"derived-tile\">
-        <h4 class=\"derived-ar\" lang=\"ar\" dir=\"rtl\">${d.ar || ''}</h4>
-        <div class=\"derived-meta\">
-          <span>${d.bn || ''}</span>
-          <span>${d.tr || ''}</span>
+// মূল ফাংশন যা পুরো সূরা রেন্ডার করে
+function renderSurah(data, container) {
+    const surahHtml = `
+        <h2 class="surah-title" lang="ar" dir="rtl">${data.name_ar}</h2>
+        <h3 class="surah-title-bn" lang="bn" dir="ltr">${data.name_bn}</h3>
+        <div class="verses-container">
+            ${data.verses.map(verse => renderVerse(verse)).join('')}
         </div>
-      </div>
-    `).join('');
-
-  // Handle chips
-  const chips = [
-    w.root ? `<span class=\"chip\" dir=\"ltr\">Root: ${w.root || ''}</span>` : '',
-    w.pattern ? `<span class=\"chip\" dir=\"ltr\">Pattern: ${w.pattern || ''}</span>` : ''
-  ].join('');
-
-  return `
-    <article class=\"word-card\">
-      <div class=\"card-head\">MAIN</div>
-      <h3 class=\"word-ar\" lang=\"ar\" dir=\"rtl\">${w.ar || ''}</h3>
-      <p class=\"word-bn\">${escapeHtml(w.bn || '')}</p>
-      <div class=\"chips\">${chips}</div>
-
-      <div class=\"derived-row\">
-        <span class=\"derived-label\">DERIVED</span>
-        <button class=\"derived-toggle\" type=\"button\" aria-expanded=\"false\">
-          Derived <span class=\"plus\">+</span>
-        </button>
-      </div>
-
-      <div class=\"derived-grid\" hidden>
-        ${derivedTiles}
-      </div>
-    </article>
-  `;
+    `;
+    container.innerHTML = surahHtml;
 }
 
-// ---------- Helpers ----------
-function escapeHtml(s){
-  return String(s || '').replace(/[&<>"']/g, m =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
-  );
+// প্রতিটি আয়াত রেন্ডার করার ফাংশন
+function renderVerse(verseData) {
+    const wordElementsHtml = verseData.words.map(word => createWordElement(word)).join(' ');
+    return `
+        <article class="verse" data-ayah-id="${verseData.ayah_id}">
+            <p class="ayah-arabic" lang="ar" dir="rtl">${wordElementsHtml}</p>
+            <p class="ayah-bangla" lang="bn" dir="ltr">${verseData.bangla}</p>
+        </article>
+    `;
 }
 
-function positionWordStripForDirection(){
-  const strip = document.querySelector(WORD_STRIP_SELECTOR);
-  if(!strip) return;
-  requestAnimationFrame(()=>{
-    if(document.body.classList.contains('rtl')){
-      strip.scrollLeft = strip.scrollWidth;
-    }else{
-      strip.scrollLeft = 0;
+// প্রতিটি শব্দের জন্য ইন্টারেক্টিভ এলিমেন্ট তৈরি করার ফাংশন
+function createWordElement(wordData) {
+    const tooltipHtml = createWordTooltip(wordData);
+    const wordElement = document.createElement('span');
+    wordElement.className = 'word-wrapper';
+    wordElement.setAttribute('tabindex', '0'); // কীবোর্ড অ্যাক্সেসিবিলিটির জন্য
+    wordElement.setAttribute('role', 'button');
+    wordElement.setAttribute('aria-expanded', 'false');
+
+    wordElement.innerHTML = `<span lang="ar" dir="rtl">${wordData.ar}</span>${tooltipHtml}`;
+
+    // মাউস হোভার এবং ক্লিক ইভেন্ট লিসনার যোগ করা
+    wordElement.addEventListener('click', (e) => toggleTooltip(e.currentTarget));
+    wordElement.addEventListener('mouseenter', (e) => showTooltip(e.currentTarget));
+    wordElement.addEventListener('mouseleave', (e) => hideTooltip(e.currentTarget));
+    wordElement.addEventListener('focus', (e) => showTooltip(e.currentTarget));
+    wordElement.addEventListener('blur', (e) => hideTooltip(e.currentTarget));
+
+    return wordElement.outerHTML; // টেমপ্লেট লিটারালের সাথে ব্যবহারের জন্য
+}
+
+// শব্দের বিস্তারিত তথ্যের জন্য টুলটিপ তৈরি করার ফাংশন
+function createWordTooltip(wordData) {
+    const derivedHtml = wordData.derived? `
+        <div class="word-details-item word-derived">
+            <strong>শব্দ থেকে উদ্ভূত:</strong>
+            ${wordData.derived.map(d => `<span>${d.bn}</span>`).join(', ')}
+        </div>
+    ` : '';
+    return `
+        <div class="word-details" aria-hidden="true" hidden>
+            <div class="word-details-item">
+                <span>আরবি:</span> ${wordData.ar}
+            </div>
+            <div class="word-details-item">
+                <span>বাংলা:</span> ${wordData.bn}
+            </div>
+            <div class="word-details-item">
+                <span>ট্রান্সলিটারেশন:</span> ${wordData.tr}
+            </div>
+            <div class="word-details-item">
+                <span>মূল:</span> ${wordData.root}
+            </div>
+            <div class="word-details-item">
+                <span>গঠন:</span> ${wordData.pattern}
+            </div>
+            ${derivedHtml}
+        </div>
+    `;
+}
+
+// টুলটিপ টগল করার ফাংশন (ক্লিকের জন্য)
+function toggleTooltip(element) {
+    const tooltip = element.querySelector('.word-details');
+    const isExpanded = element.getAttribute('aria-expanded') === 'true';
+
+    if (isExpanded) {
+        hideTooltip(element);
+    } else {
+        showTooltip(element);
     }
-  });
 }
 
-function scrollByStep(which){
-  const strip = document.querySelector(WORD_STRIP_SELECTOR);
-  if(!strip) return;
-  const step = 200; // px
-  if(which === 'prev'){
-    strip.scrollBy({ left: -step, behavior: 'smooth' });
-  }else if(which === 'next'){
-    strip.scrollBy({ left: step, behavior: 'smooth' });
-  }
+// টুলটিপ দেখানোর ফাংশন (হোভার/ক্লিকের জন্য)
+function showTooltip(element) {
+    const tooltip = element.querySelector('.word-details');
+    tooltip.style.display = 'block';
+    tooltip.setAttribute('aria-hidden', 'false');
+    element.setAttribute('aria-expanded', 'true');
+    // অ্যাক্সেসিবিলিটির জন্য ফোকাসযোগ্য উপাদান পুনরুদ্ধার
+    const focusableElements = tooltip.querySelectorAll('button, a[href], input, select, textarea');
+    focusableElements.forEach(el => el.removeAttribute('tabindex'));
 }
 
-// ---------- UI Binders ----------
-function bindUI(){
-  document.getElementById('btnPrev').addEventListener('click', ()=> scrollByStep('prev'));
-  document.getElementById('btnNext').addEventListener('click', ()=> scrollByStep('next'));
-  document.getElementById('dirToggle').addEventListener('click', toggleDirection);
-}
-
-function toggleDirection(){
-  const toggle = document.getElementById('dirToggle');
-  if(document.body.dir === 'ltr'){
-    document.body.dir = 'rtl';
-    toggle.textContent = 'RTL';
-  }else{
-    document.body.dir = 'ltr';
-    toggle.textContent = 'LTR';
-  }
-  positionWordStripForDirection();
+// টুলটিপ লুকানোর ফাংশন (হোভার/ক্লিকের জন্য)
+function hideTooltip(element) {
+    const tooltip = element.querySelector('.word-details');
+    tooltip.style.display = 'none';
+    tooltip.setAttribute('aria-hidden', 'true');
+    element.setAttribute('aria-expanded', 'false');
+    // অ্যাক্সেসিবিলিটির জন্য ফোকাসযোগ্য উপাদান ট্যাব ক্রম থেকে সরানো
+    const focusableElements = tooltip.querySelectorAll('button, a[href], input, select, textarea');
+    focusableElements.forEach(el => el.setAttribute('tabindex', '-1'));
 }
