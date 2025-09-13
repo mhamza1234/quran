@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="bn" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qur'an Word Explorer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="app-title">Qur'an Word Explorer</h1>
+
+    <div class="topbar-controls">
+      <button id="dirToggle" class="pill">LTR</button>
+
+      <label class="select-wrap">
+        <span class="sr-only">Select Surah</span>
+        <select id="surahSelect"></select>
+      </label>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="surah-head">
+      <div class="ayah-chip" id="ayahChip">Ayah 1</div>
+      <h2 id="surahTitleAr" class="surah-title-ar">سورة</h2>
+      <div id="surahTitleBn" class="surah-title-bn">—</div>
+      <p id="ayahArabic" class="ayah-ar" lang="ar" dir="rtl"></p>
+      <p id="ayahBangla" class="ayah-bn" lang="bn" dir="ltr"></p>
+    </section>
+
+    <section class="carousel-wrap">
+      <button class="nav-btn" id="btnPrev" aria-label="Previous">
+        <span class="icon-chevron">‹</span>
+      </button>
+
+      <div id="wordRow" class="word-strip" aria-live="polite"></div>
+
+      <button class="nav-btn" id="btnNext" aria-label="Next">
+        <span class="icon-chevron">›</span>
+      </button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

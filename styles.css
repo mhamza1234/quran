@@ -1,0 +1,189 @@
+/* ============ Root Theme ============ */
+:root{
+  --bg:#111214;
+  --panel:#242528;
+  --tile:#2C2C2E;
+  --text:#EEEFF3;
+  --muted:#B7BCC6;
+  --chip:#3A3B40;
+  --accent:#FFC857;
+  --accent-2:#FFB43A;
+  --shadow:0 10px 24px rgba(0,0,0,.35);
+  --radius:18px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Ubuntu, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* ============ Topbar ============ */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 20px;
+  position:sticky;
+  top:0;
+  background:linear-gradient(180deg, rgba(17,18,20,.95), rgba(17,18,20,.85));
+  backdrop-filter: blur(6px);
+  z-index:10;
+  border-bottom:1px solid #1b1c1f;
+}
+.app-title{margin:0;font-size:20px;color:var(--text)}
+.topbar-controls{display:flex; gap:12px; align-items:center}
+.pill{
+  border:0;
+  background:var(--chip);
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 14px;
+  cursor:pointer;
+}
+.select-wrap select{
+  appearance:none;
+  background:var(--chip);
+  color:var(--text);
+  border:0;
+  border-radius:999px;
+  padding:10px 16px;
+}
+
+/* ============ Surah Header ============ */
+.page{max-width:1280px; margin:0 auto; padding:24px 16px}
+.surah-head{ text-align:center; margin:8px auto 24px auto; }
+.ayah-chip{
+  display:inline-block;
+  background:var(--accent);
+  color:#1b1b1b;
+  border-radius:999px;
+  padding:6px 14px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+.surah-title-ar{
+  font-family: "Noto Sans Arabic", "Amiri", "Scheherazade New", serif;
+  font-size:48px; margin:0 0 6px 0; letter-spacing:.5px;
+}
+.surah-title-bn{color:var(--muted); margin:0 0 8px 0}
+.ayah-ar{
+  font-family: "Noto Sans Arabic","Amiri","Scheherazade New", serif;
+  font-size:32px; line-height:1.8; margin:6px 0 8px 0;
+}
+.ayah-bn{ color:var(--muted); margin:0 }
+
+/* ============ Carousel ============ */
+.carousel-wrap{
+  display:grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items:stretch;
+  gap:10px;
+}
+.nav-btn{
+  border:0; background:var(--chip); color:var(--text);
+  border-radius:12px; width:48px; height:48px; align-self:center;
+  cursor:pointer;
+}
+.icon-chevron{display:inline-block; font-size:24px; line-height:48px}
+
+.word-strip{
+  display:flex;
+  gap:16px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding:8px;
+}
+
+/* New rule for RTL word tile direction */
+.word-strip.ar-dir{
+  direction: rtl;
+}
+
+/* Word cards */
+.word-card{
+  min-width: 340px;                 /* cards are responsive; no fixed height */
+  max-width: 360px;
+  background:var(--tile);
+  border-radius:var(--radius);
+  box-shadow: var(--shadow);
+  padding:16px;
+  scroll-snap-align: start;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.card-head{
+  font-size:12px; font-weight:800; color:#d0d3db;
+  letter-spacing:.08em; opacity:.9;
+}
+.word-ar{
+  font-family: "Noto Sans Arabic","Amiri","Scheherazade New", serif;
+  font-weight:800;
+  font-size:42px;        /* main Arabic word size */
+  line-height:1.2;
+  text-align:left;       /* as requested: left-aligned inside card */
+  margin:4px 0 2px 0;
+}
+.word-bn{ margin:0 0 4px 0; color:#d8dbe3; font-weight:600 }
+.chips{display:flex; flex-wrap:wrap; gap:8px; direction:ltr}
+.chip{
+  background:var(--chip);
+  color:var(--text);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+}
+
+/* Derived toggle line */
+.derived-row{
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid #3b3c41;
+  padding-top:10px; margin-top:6px;
+}
+.derived-label{ font-weight:800; color:#d0d3db; letter-spacing:.06em }
+.derived-toggle{
+  border:0; background:var(--chip); color:var(--text);
+  border-radius:999px; padding:6px 12px; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+}
+.derived-toggle .plus{ width:18px; height:18px; border-radius:50%; background:var(--accent-2); color:#1b1b1b; display:inline-grid; place-items:center; font-weight:800 }
+
+/* Derived grid (collapsible) */
+.derived-grid{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap:10px;
+}
+.derived-tile{
+  background:#333438;
+  border-radius:12px;
+  padding:10px 12px;
+}
+.derived-ar{
+  font-family:"Noto Sans Arabic","Amiri","Scheherazade New", serif;
+  font-weight:800;
+  font-size:26px;         /* bigger for readability */
+  line-height:1.25;
+  margin:0 0 2px 0;
+}
+.derived-meta{ color:#cfd3de; display:flex; gap:6px; font-size:13px }
+
+/* RTL flipping for the STRIP (word-level order) */
+.rtl .word-strip{ flex-direction: row-reverse; }
+.rtl .word-card{ scroll-snap-align: end; }
+.rtl .icon-chevron{ transform: rotate(180deg) }
+
+/* Hide helper */
+[hidden]{ display:none !important; }
+
+/* small */
+@media (max-width: 780px){
+  .word-card{ min-width: 300px; }
+  .word-ar{ font-size:38px; }
+  .derived-ar{ font-size:24px; }
+}
